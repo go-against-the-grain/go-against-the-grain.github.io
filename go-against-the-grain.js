@@ -87,11 +87,11 @@ class GoAgainstTheGrain extends HTMLElement {
         
         // Convert to base64
         const bytes = new Uint8Array(buffer);
-        let binary = '';
+        const binaryChunks = [];
         for (let i = 0; i < bytes.length; i++) {
-            binary += String.fromCharCode(bytes[i]);
+            binaryChunks.push(String.fromCharCode(bytes[i]));
         }
-        return 'data:audio/wav;base64,' + btoa(binary);
+        return 'data:audio/wav;base64,' + btoa(binaryChunks.join(''));
     }
     
     writeString(view, offset, string) {
