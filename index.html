@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Against The Grain - Web Component Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .demo-section {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .demo-section h2 {
+            margin-top: 0;
+            color: #555;
+        }
+    </style>
+    <script src="go-against-the-grain.js"></script>
+</head>
+<body>
+    <h1>Go Against The Grain Web Component</h1>
+    
+    <div class="demo-section">
+        <h2>Basic Component (No Sync)</h2>
+        <go-against-the-grain></go-against-the-grain>
+    </div>
+    
+    <div class="demo-section">
+        <h2>With Sync Attribute (Auto-play with synchronized lyrics)</h2>
+        <go-against-the-grain sync></go-against-the-grain>
+    </div>
+</body>
+</html>
