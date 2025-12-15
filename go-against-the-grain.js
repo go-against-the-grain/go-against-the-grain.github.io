@@ -3,6 +3,13 @@ class GoAgainstTheGrain extends HTMLElement {
         super();
         this.attachShadow({ mode: 'open' });
         
+        // Constants
+        this.AUTOPLAY_DELAY_MS = 500;
+        this.BEEP_DURATION_SEC = 0.3;
+        this.BASE_FREQUENCY_HZ = 440;
+        this.FREQUENCY_VARIATION_HZ = 200;
+        this.currentActiveLine = -1;
+        
         // Original lyrics inspired by the theme "going against the grain"
         // Not copyrighted material - original content
         this.lyrics = [
@@ -69,8 +76,8 @@ class GoAgainstTheGrain extends HTMLElement {
             const beepTimes = [0.5, 3.8, 7.1, 10.4, 14.7, 17.5, 19.8, 22.6, 27.0, 30.3, 33.6, 36.9, 41.2, 44.0, 46.3, 49.1];
             
             for (const beepStart of beepTimes) {
-                if (t >= beepStart && t < beepStart + 0.3) {
-                    const freq = 440 + Math.floor(Math.random() * 200);
+                if (t >= beepStart && t < beepStart + this.BEEP_DURATION_SEC) {
+                    const freq = this.BASE_FREQUENCY_HZ + Math.floor(Math.random() * this.FREQUENCY_VARIATION_HZ);
                     value = 128 + Math.sin(2 * Math.PI * freq * (t - beepStart)) * 50;
                 }
             }
@@ -101,8 +108,11 @@ class GoAgainstTheGrain extends HTMLElement {
         if (this.hasAttribute('sync')) {
             setTimeout(() => {
                 this.dialog.showModal();
-                this.audio.play();
-            }, 500);
+                this.audio.play().catch(error => {
+                    console.warn('Autoplay was prevented:', error);
+                    // User will need to manually start playback
+                });
+            }, this.AUTOPLAY_DELAY_MS);
         }
     }
     
@@ -280,7 +290,9 @@ class GoAgainstTheGrain extends HTMLElement {
         openButton.addEventListener('click', () => {
             this.dialog.showModal();
             if (this.hasAttribute('sync')) {
-                this.audio.play();
+                this.audio.play().catch(error => {
+                    console.warn('Playback failed:', error);
+                });
             }
         });
         
@@ -323,21 +335,28 @@ class GoAgainstTheGrain extends HTMLElement {
         const currentTime = this.audio.currentTime;
         const lyricElements = this.shadowRoot.querySelectorAll('.lyric-line');
         
+        let newActiveLine = -1;
         this.lyrics.forEach((line, index) => {
             const element = lyricElements[index];
             if (currentTime >= line.start && currentTime <= line.end) {
                 element.classList.add('active');
-                // Scroll into view
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                newActiveLine = index;
             } else {
                 element.classList.remove('active');
             }
         });
+        
+        // Only scroll if the active line changed to prevent excessive scrolling
+        if (newActiveLine !== -1 && newActiveLine !== this.currentActiveLine) {
+            this.currentActiveLine = newActiveLine;
+            lyricElements[newActiveLine].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     }
     
     clearHighlights() {
         const lyricElements = this.shadowRoot.querySelectorAll('.lyric-line');
         lyricElements.forEach(element => element.classList.remove('active'));
+        this.currentActiveLine = -1;
     }
 }
 
